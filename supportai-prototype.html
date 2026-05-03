@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SupportAI — Intelligent Email Automation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #17171e;
+    --surface2: #1e1e28;
+    --surface3: #25252f;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --text2: #9a9aac;
+    --text3: #5e5e72;
+    --accent: #7c6fef;
+    --accent2: #5b50c7;
+    --accent-glow: rgba(124,111,239,0.15);
+    --red: #ef5b5b;
+    --red-bg: rgba(239,91,91,0.12);
+    --red-border: rgba(239,91,91,0.25);
+    --amber: #f5a623;
+    --amber-bg: rgba(245,166,35,0.12);
+    --amber-border: rgba(245,166,35,0.25);
+    --green: #3ecf8e;
+    --green-bg: rgba(62,207,142,0.12);
+    --green-border: rgba(62,207,142,0.25);
+    --blue: #5b9ef5;
+    --blue-bg: rgba(91,158,245,0.12);
+    --blue-border: rgba(91,158,245,0.25);
+    --purple-bg: rgba(124,111,239,0.12);
+    --purple-border: rgba(124,111,239,0.25);
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --r: 10px;
+    --r2: 8px;
+    --r3: 6px;
+  }
+
+  html { font-family: var(--font); background: var(--bg); color: var(--text); height: 100%; }
+  body { height: 100%; display: flex; flex-direction: column; }
+
+  /* ── NAV BAR ── */
+  .topbar {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 20px; gap: 8px;
+    flex-shrink: 0; position: sticky; top: 0; z-index: 100;
+  }
+  .logo-mark {
+    width: 30px; height: 30px; border-radius: 8px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .logo-text { font-size: 14px; font-weight: 600; color: var(--text); margin-right: 12px; }
+  .screen-tabs { display: flex; gap: 2px; flex: 1; }
+  .stab {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    color: var(--text3); cursor: pointer; transition: all .2s; border: none;
+    background: transparent; white-space: nowrap;
+  }
+  .stab:hover { background: var(--surface2); color: var(--text2); }
+  .stab.active { background: var(--accent); color: #fff; }
+  .step-badge {
+    margin-left: auto; display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--text3); font-family: var(--mono);
+  }
+  .step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* ── LAYOUT ── */
+  .app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 52px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
+    padding: 16px 10px;
+  }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-label { font-size: 10px; font-weight: 600; color: var(--text3);
+    letter-spacing: .08em; text-transform: uppercase; padding: 0 8px; margin-bottom: 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border-radius: var(--r3); font-size: 13px; color: var(--text2);
+    cursor: pointer; transition: all .15s; position: relative;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-glow); color: var(--accent); }
+  .nav-item .icon { font-size: 14px; width: 16px; text-align: center; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; font-size: 10px; font-weight: 600; min-width: 18px;
+    padding: 2px 5px; border-radius: 9px; text-align: center;
+  }
+  .nav-badge.red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .nav-badge.purple { background: var(--purple-bg); color: var(--accent); border: 1px solid var(--purple-border); }
+  .nav-badge.green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+  .cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  .sidebar-stat {
+    background: var(--surface2); border-radius: var(--r3); padding: 12px;
+    border: 1px solid var(--border); margin-top: auto;
+  }
+  .sidebar-stat .stat-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+  .sidebar-stat .stat-bar-bg { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+  .sidebar-stat .stat-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 1s ease; }
+  .sidebar-stat .stat-value { font-size: 12px; color: var(--accent); font-weight: 500; }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* ── SCREEN WRAPPER ── */
+  .screen { display: none; flex-direction: column; height: 100%; }
+  .screen.active { display: flex; }
+
+  /* ════════════ SCREEN 1 — INBOX ════════════ */
+  .inbox-header {
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    background: var(--surface);
+  }
+  .inbox-title { font-size: 18px; font-weight: 600; }
+  .inbox-count { background: var(--purple-bg); color: var(--accent); border: 1px solid var(--purple-border);
+    padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .search-bar {
+    flex: 1; max-width: 320px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; font-size: 13px; color: var(--text2);
+    display: flex; align-items: center; gap: 8px; cursor: text;
+  }
+  .search-bar span { color: var(--text3); font-size: 13px; }
+  .filter-chips { display: flex; gap: 6px; margin-left: auto; }
+  .chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: transparent; color: var(--text2);
+    cursor: pointer; transition: all .15s;
+  }
+  .chip:hover { border-color: var(--border2); color: var(--text); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* stats row */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+    padding: 14px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    background: var(--surface);
+  }
+  .stat-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r2);
+    padding: 12px 16px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-card .sc-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+  .stat-card .sc-value { font-size: 22px; font-weight: 600; line-height: 1.1; }
+  .stat-card .sc-delta { font-size: 11px; color: var(--text3); }
+  .c-green { color: var(--green); }
+  .c-red { color: var(--red); }
+  .c-amber { color: var(--amber); }
+  .c-purple { color: var(--accent); }
+  .c-blue { color: var(--blue); }
+
+  /* table */
+  .email-table-wrap { flex: 1; overflow-y: auto; }
+  .email-table { width: 100%; border-collapse: collapse; }
+  .email-table thead th {
+    padding: 10px 20px; text-align: left; font-size: 10px; font-weight: 600;
+    color: var(--text3); letter-spacing: .06em; text-transform: uppercase;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .email-row {
+    border-bottom: 1px solid var(--border); cursor: pointer;
+    transition: background .12s;
+  }
+  .email-row:hover { background: var(--surface2); }
+  .email-row.selected { background: var(--accent-glow); border-left: 3px solid var(--accent); }
+  .email-row td { padding: 14px 20px; vertical-align: middle; }
+  .email-row.selected td:first-child { padding-left: 17px; }
+
+  .sender-wrap { display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; color: #fff;
+  }
+  .sender-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sender-sub { font-size: 12px; color: var(--text3); margin-top: 1px; max-width: 260px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+  .tag-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tag.order { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-border); }
+  .tag.refund { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+  .tag.tech { background: var(--purple-bg); color: var(--accent); border-color: var(--purple-border); }
+  .tag.shipping { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
+  .tag.inquiry { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+
+  .pri-badge {
+    padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; font-family: var(--mono);
+  }
+  .pri-high { background: var(--red-bg); color: var(--red); }
+  .pri-med { background: var(--amber-bg); color: var(--amber); }
+  .pri-low { background: var(--green-bg); color: var(--green); }
+
+  .status-pill {
+    padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
+  }
+  .status-draft { background: var(--purple-bg); color: var(--accent); }
+  .status-auto { background: var(--green-bg); color: var(--green); }
+  .status-review { background: var(--amber-bg); color: var(--amber); }
+
+  .time-text { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+
+  .ai-note {
+    margin: 0 24px 14px; padding: 10px 16px; background: var(--accent-glow);
+    border: 1px solid var(--purple-border); border-radius: var(--r2);
+    font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 8px;
+  }
+  .ai-spark { font-size: 14px; }
+
+  /* ════════════ SCREEN 2 — EMAIL DETAIL ════════════ */
+  .detail-wrap {
+    display: flex; flex: 1; overflow: hidden;
+  }
+  .email-panel {
+    flex: 1; display: flex; flex-direction: column; overflow-y: auto;
+    border-right: 1px solid var(--border);
+  }
+  .email-panel-header {
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    background: var(--surface);
+  }
+  .back-btn {
+    padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+    cursor: pointer; transition: all .15s;
+  }
+  .back-btn:hover { border-color: var(--border2); color: var(--text); }
+  .ep-title { font-size: 15px; font-weight: 600; flex: 1; }
+
+  .email-meta { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .email-from { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .email-from .avatar { width: 42px; height: 42px; }
+  .from-name { font-size: 14px; font-weight: 600; }
+  .from-email { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+  .from-time { margin-left: auto; font-size: 12px; color: var(--text3); }
+  .email-subject { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .email-to { font-size: 12px; color: var(--text3); }
+
+  .email-body { padding: 20px 24px; font-size: 14px; line-height: 1.75; color: var(--text2); flex: 1; }
+  .email-body p { margin-bottom: 14px; }
+  .highlight-order { background: rgba(124,111,239,.15); border-radius: 3px; padding: 0 3px; color: var(--accent); }
+  .highlight-urgent { background: rgba(239,91,91,.12); border-radius: 3px; padding: 0 3px; color: var(--red); }
+  .highlight-money { background: rgba(245,166,35,.12); border-radius: 3px; padding: 0 3px; color: var(--amber); }
+
+  .entity-strip { padding: 12px 24px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+  .entity-chip {
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--surface2); color: var(--text2);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .entity-chip .etype { color: var(--text3); font-size: 10px; }
+
+  /* AI side panel */
+  .ai-panel {
+    width: 300px; flex-shrink: 0; display: flex; flex-direction: column;
+    overflow-y: auto; background: var(--surface);
+  }
+  .ai-panel-header {
+    padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .ai-panel-title {
+    font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: .06em;
+    text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+    margin-bottom: 2px;
+  }
+  .ai-live { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--green); }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+  .ai-section { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+  .ai-section-label { font-size: 10px; font-weight: 600; color: var(--text3);
+    letter-spacing: .07em; text-transform: uppercase; margin-bottom: 10px; }
+
+  .category-tag-big {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+    border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 6px;
+    margin-right: 6px;
+  }
+  .conf-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .conf-label { font-size: 11px; color: var(--text3); }
+  .conf-bar-bg { flex: 1; height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .conf-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+  .conf-value { font-size: 11px; font-weight: 600; font-family: var(--mono); }
+
+  .sentiment-scale { display: flex; justify-content: space-between; margin-top: 8px; }
+  .sent-label { font-size: 10px; color: var(--text3); }
+  .score-bar-bg { height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; margin: 6px 0; }
+  .score-bar-fill { height: 100%; border-radius: 3px; }
+
+  .signal-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .signal-icon { font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+  .signal-text { font-size: 12px; color: var(--text2); line-height: 1.4; }
+
+  .suggest-action {
+    margin: 10px 18px; padding: 10px 14px; border-radius: var(--r2);
+    border: 1px solid var(--border); background: var(--surface2);
+    font-size: 12px; color: var(--text2); cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .suggest-action:hover { border-color: var(--accent); color: var(--accent); }
+  .suggest-action .sa-icon { font-size: 14px; flex-shrink: 0; }
+
+  /* ════════════ SCREEN 3 — AI DRAFT ════════════ */
+  .draft-layout { display: flex; flex: 1; overflow: hidden; flex-direction: column; }
+  .draft-body { display: flex; flex: 1; overflow: hidden; }
+  .draft-left { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow-y: auto; }
+  .draft-right { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; background: var(--surface); }
+
+  .draft-header {
+    padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .draft-badge {
+    display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px;
+    background: var(--purple-bg); border: 1px solid var(--purple-border);
+    font-size: 11px; font-weight: 500; color: var(--accent);
+  }
+
+  .draft-compose { padding: 20px 24px; flex: 1; }
+  .compose-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .compose-row label { font-size: 12px; color: var(--text3); width: 40px; flex-shrink: 0; }
+  .compose-row .cr-value { font-size: 13px; color: var(--text); }
+  .compose-row .cr-tag { font-size: 12px; color: var(--text3); margin-left: 6px; }
+
+  .compose-subject { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .compose-subject .subject-text { font-size: 15px; font-weight: 500; color: var(--text); }
+
+  .compose-body { padding: 18px 0; font-size: 14px; line-height: 1.8; color: var(--text2); position: relative; }
+  .compose-body .ai-line { border-left: 2px solid var(--accent); padding-left: 12px; margin-bottom: 14px; color: var(--text); }
+  .compose-body p { margin-bottom: 14px; }
+
+  .draft-toolbar {
+    padding: 14px 24px; border-top: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  .btn-primary {
+    padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    background: var(--accent); color: #fff; border: none; cursor: pointer;
+    transition: all .15s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost {
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    background: transparent; color: var(--text2); border: 1px solid var(--border);
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-danger {
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    background: transparent; color: var(--red); border: 1px solid var(--red-border);
+    cursor: pointer; transition: all .15s; margin-left: auto;
+  }
+  .btn-danger:hover { background: var(--red-bg); }
+
+  .draft-meta { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+  .dm-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: .07em;
+    text-transform: uppercase; margin-bottom: 10px; }
+  .dm-item { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .dm-key { font-size: 12px; color: var(--text3); }
+  .dm-val { font-size: 12px; color: var(--text); font-weight: 500; }
+
+  .tone-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tone-chip {
+    padding: 4px 10px; border-radius: 12px; font-size: 11px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); cursor: pointer; transition: all .15s;
+  }
+  .tone-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tone-chip:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+  /* ════════════ SCREEN 4 — APPROVAL QUEUE ════════════ */
+  .approval-layout { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .approval-header-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    padding: 14px 24px; border-bottom: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0;
+  }
+
+  .queue-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+    margin-bottom: 12px; overflow: hidden; transition: border-color .15s;
+  }
+  .queue-card:hover { border-color: var(--border2); }
+  .queue-card-head {
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    border-bottom: 1px solid var(--border); background: var(--surface2);
+  }
+  .qc-sender { font-size: 13px; font-weight: 600; flex: 1; }
+  .qc-subject { font-size: 12px; color: var(--text3); }
+  .queue-card-body { padding: 14px 18px; }
+  .draft-preview { font-size: 13px; line-height: 1.7; color: var(--text2); }
+  .draft-preview strong { color: var(--text); font-weight: 500; }
+  .queue-card-footer {
+    padding: 12px 18px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .approve-btn {
+    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    background: var(--green); color: #0a1a12; border: none; cursor: pointer;
+    transition: opacity .15s;
+  }
+  .approve-btn:hover { opacity: .85; }
+  .edit-btn {
+    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    background: transparent; color: var(--text2); border: 1px solid var(--border);
+    cursor: pointer; transition: all .15s;
+  }
+  .edit-btn:hover { border-color: var(--border2); color: var(--text); }
+  .skip-btn {
+    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    background: transparent; color: var(--red); border: 1px solid var(--red-border);
+    cursor: pointer; margin-left: auto;
+  }
+  .ai-generated-pill {
+    display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--accent);
+    background: var(--purple-bg); border: 1px solid var(--purple-border);
+    padding: 3px 8px; border-radius: 10px;
+  }
+
+  /* ════════════ SCREEN 5 — ANALYTICS ════════════ */
+  .analytics-layout { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .analytics-header {
+    padding: 14px 24px; border-bottom: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .analytics-title { font-size: 18px; font-weight: 600; }
+  .analytics-sub { font-size: 13px; color: var(--text3); margin-left: auto; }
+
+  .analytics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  .analytics-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 16px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .ac-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+  .ac-value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .ac-delta { font-size: 12px; font-weight: 500; }
+  .ac-delta.up { color: var(--green); }
+  .ac-delta.down { color: var(--red); }
+
+  .charts-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 18px;
+  }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+  .chart-sub { font-size: 11px; color: var(--text3); margin-bottom: 14px; }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
+  .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-wrap { display: flex; gap: 2px; align-items: flex-end; height: 80px; width: 100%; }
+  .bar { border-radius: 3px 3px 0 0; flex: 1; transition: height .8s ease; }
+  .bar-lbl { font-size: 10px; color: var(--text3); }
+
+  .donut-wrap { display: flex; align-items: center; gap: 16px; }
+  .donut-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-text { font-size: 12px; color: var(--text2); flex: 1; }
+  .legend-pct { font-size: 12px; font-weight: 600; font-family: var(--mono); }
+
+  .roi-banner {
+    background: var(--accent-glow); border: 1px solid var(--purple-border);
+    border-radius: var(--r); padding: 18px 24px; display: flex; align-items: center; gap: 20px;
+  }
+  .roi-spark { font-size: 28px; }
+  .roi-text { flex: 1; }
+  .roi-headline { font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+  .roi-sub { font-size: 13px; color: var(--text2); }
+  .roi-numbers { display: flex; gap: 24px; }
+  .roi-num { text-align: center; }
+  .roi-num .val { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .roi-num .lbl { font-size: 11px; color: var(--text3); }
+
+  svg.donut { width: 80px; height: 80px; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+  /* animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .screen.active > * { animation: fadeIn .25s ease both; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topbar">
+  <div class="logo-mark">S</div>
+  <span class="logo-text">SupportAI</span>
+  <div class="screen-tabs">
+    <button class="stab active" onclick="showScreen(0)">① Inbox</button>
+    <button class="stab" onclick="showScreen(1)">② Email Detail</button>
+    <button class="stab" onclick="showScreen(2)">③ AI Draft</button>
+    <button class="stab" onclick="showScreen(3)">④ Approval Queue</button>
+    <button class="stab" onclick="showScreen(4)">⑤ Analytics</button>
+  </div>
+  <div class="step-badge">
+    <div class="step-dot"></div>
+    <span id="step-label">Inbox · Step 1 of 5</span>
+  </div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mail</div>
+      <div class="nav-item active" onclick="showScreen(0)">
+        <span class="icon">📥</span> Inbox
+        <span class="nav-badge purple">24</span>
+      </div>
+      <div class="nav-item" onclick="showScreen(2)">
+        <span class="icon">✏️</span> Drafts
+        <span class="nav-badge purple">6</span>
+      </div>
+      <div class="nav-item" onclick="showScreen(3)">
+        <span class="icon">✅</span> AI Queue
+        <span class="nav-badge red">6</span>
+      </div>
+      <div class="nav-item">
+        <span class="icon">📤</span> Sent
+        <span class="nav-badge green">99</span>
+      </div>
+      <div class="nav-item">
+        <span class="icon">🗂️</span> Resolved
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Categories</div>
+      <div class="nav-item">
+        <span class="cat-dot" style="background:var(--red)"></span> Refund requests
+        <span class="nav-badge red">8</span>
+      </div>
+      <div class="nav-item">
+        <span class="cat-dot" style="background:var(--amber)"></span> Order issues
+        <span class="nav-badge" style="background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)">5</span>
+      </div>
+      <div class="nav-item">
+        <span class="cat-dot" style="background:var(--blue)"></span> Shipping
+        <span class="nav-badge" style="background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)">4</span>
+      </div>
+      <div class="nav-item">
+        <span class="cat-dot" style="background:var(--green)"></span> General inquiry
+        <span class="nav-badge green">7</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:auto">
+      <div class="sidebar-stat">
+        <div class="stat-label" style="font-size:11px;color:var(--text3);margin-bottom:6px">Today's automation</div>
+        <div class="stat-bar-bg">
+          <div class="stat-bar-fill" style="width:78%"></div>
+        </div>
+        <div class="stat-value">78% auto-handled</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Avg response: 42s</div>
+      </div>
+    </div>
+    <div style="padding:10px 8px 0">
+      <div class="nav-item" onclick="showScreen(4)">
+        <span class="icon">📊</span> Analytics
+      </div>
+    </div>
+  </aside>
+
+  <!-- SCREENS -->
+  <div class="main">
+
+    <!-- ══ SCREEN 1: INBOX ══ -->
+    <div class="screen active" id="screen-0">
+      <div class="inbox-header">
+        <span class="inbox-title">Inbox</span>
+        <span class="inbox-count">24 unread</span>
+        <div class="search-bar">
+          <span>🔍</span>
+          <span>Search emails…</span>
+        </div>
+        <div class="filter-chips">
+          <div class="chip active">All</div>
+          <div class="chip">Urgent</div>
+          <div class="chip">Needs review</div>
+          <div class="chip">Auto-handled</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="sc-label">Today's volume</div>
+          <div class="sc-value c-purple">127</div>
+          <div class="sc-delta">↑ 12 from yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Auto-resolved</div>
+          <div class="sc-value c-green">99</div>
+          <div class="sc-delta">78% automation rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Needs review</div>
+          <div class="sc-value c-amber">28</div>
+          <div class="sc-delta">6 drafts ready</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Avg response time</div>
+          <div class="sc-value c-blue">42s</div>
+          <div class="sc-delta">↓ 11m vs manual</div>
+        </div>
+      </div>
+
+      <div class="email-table-wrap">
+        <div class="ai-note" style="margin-top:12px">
+          <span class="ai-spark">✦</span>
+          AI has read and categorised all 24 emails — 6 high-priority drafts are ready for your review.
+          <button class="chip" style="margin-left:auto;font-size:11px" onclick="showScreen(3)">Review queue →</button>
+        </div>
+        <table class="email-table">
+          <thead>
+            <tr>
+              <th style="width:300px">From</th>
+              <th>AI Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="email-row selected" onclick="showScreen(1)">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#7c6fef">SA</div>
+                  <div>
+                    <div class="sender-name">Sarah Abramowitz</div>
+                    <div class="sender-sub">Order #82341 never arrived – need urgent help...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag order"><span class="tag-dot" style="background:var(--amber)"></span>Order issue</span></td>
+              <td><span class="pri-badge pri-high">HIGH</span></td>
+              <td><span class="status-pill status-draft">Draft ready</span></td>
+              <td><span class="time-text">2m</span></td>
+            </tr>
+            <tr class="email-row" onclick="showScreen(1)">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#3ecf8e">RJ</div>
+                  <div>
+                    <div class="sender-name">Ravi Joshi</div>
+                    <div class="sender-sub">Can I get a refund for my last purchase? The item...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag refund"><span class="tag-dot" style="background:var(--red)"></span>Refund request</span></td>
+              <td><span class="pri-badge pri-high">HIGH</span></td>
+              <td><span class="status-pill status-draft">Draft ready</span></td>
+              <td><span class="time-text">8m</span></td>
+            </tr>
+            <tr class="email-row">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#5b9ef5">ML</div>
+                  <div>
+                    <div class="sender-name">Maria Lopez</div>
+                    <div class="sender-sub">How do I reset my password? I can't log in...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag tech"><span class="tag-dot" style="background:var(--accent)"></span>Tech support</span></td>
+              <td><span class="pri-badge pri-low">LOW</span></td>
+              <td><span class="status-pill status-auto">Auto-sent ✓</span></td>
+              <td><span class="time-text">15m</span></td>
+            </tr>
+            <tr class="email-row">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#ef5b5b">TK</div>
+                  <div>
+                    <div class="sender-name">Tom Kwan</div>
+                    <div class="sender-sub">Package shows delivered but I never received it...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag shipping"><span class="tag-dot" style="background:var(--blue)"></span>Shipping issue</span></td>
+              <td><span class="pri-badge pri-high">HIGH</span></td>
+              <td><span class="status-pill status-review">Needs review</span></td>
+              <td><span class="time-text">22m</span></td>
+            </tr>
+            <tr class="email-row">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#3ecf8e">PD</div>
+                  <div>
+                    <div class="sender-name">Priya Das</div>
+                    <div class="sender-sub">What are your business hours and return policy?</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag inquiry"><span class="tag-dot" style="background:var(--green)"></span>General inquiry</span></td>
+              <td><span class="pri-badge pri-low">LOW</span></td>
+              <td><span class="status-pill status-auto">Auto-sent ✓</span></td>
+              <td><span class="time-text">34m</span></td>
+            </tr>
+            <tr class="email-row">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#f5a623">BH</div>
+                  <div>
+                    <div class="sender-name">Ben Harper</div>
+                    <div class="sender-sub">Charged twice for same order – please investigate...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag refund"><span class="tag-dot" style="background:var(--red)"></span>Refund request</span></td>
+              <td><span class="pri-badge pri-high">HIGH</span></td>
+              <td><span class="status-pill status-draft">Draft ready</span></td>
+              <td><span class="time-text">41m</span></td>
+            </tr>
+            <tr class="email-row">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#7c6fef">LC</div>
+                  <div>
+                    <div class="sender-name">Lisa Chen</div>
+                    <div class="sender-sub">Item arrived damaged – photos attached, want replacement...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag order"><span class="tag-dot" style="background:var(--amber)"></span>Order issue</span></td>
+              <td><span class="pri-badge pri-med">MED</span></td>
+              <td><span class="status-pill status-draft">Draft ready</span></td>
+              <td><span class="time-text">55m</span></td>
+            </tr>
+            <tr class="email-row">
+              <td>
+                <div class="sender-wrap">
+                  <div class="avatar" style="background:#5b9ef5">AM</div>
+                  <div>
+                    <div class="sender-name">Ahmed Malik</div>
+                    <div class="sender-sub">Do you offer bulk discounts for orders over 50 units?</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tag inquiry"><span class="tag-dot" style="background:var(--green)"></span>General inquiry</span></td>
+              <td><span class="pri-badge pri-low">LOW</span></td>
+              <td><span class="status-pill status-auto">Auto-sent ✓</span></td>
+              <td><span class="time-text">1h</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 2: EMAIL DETAIL ══ -->
+    <div class="screen" id="screen-1">
+      <div class="email-panel-header">
+        <button class="back-btn" onclick="showScreen(0)">← Inbox</button>
+        <span class="ep-title">Email Detail</span>
+        <span class="tag order" style="font-size:12px;padding:5px 12px"><span class="tag-dot" style="background:var(--amber)"></span>Order issue</span>
+        <span class="pri-badge pri-high" style="font-size:12px;padding:5px 12px">HIGH PRIORITY</span>
+        <button class="btn-primary" style="margin-left:auto" onclick="showScreen(2)">View AI Draft →</button>
+      </div>
+
+      <div class="detail-wrap">
+        <!-- email viewer -->
+        <div class="email-panel">
+          <div class="email-meta">
+            <div class="email-from">
+              <div class="avatar" style="background:#7c6fef;width:42px;height:42px;font-size:13px">SA</div>
+              <div>
+                <div class="from-name">Sarah Abramowitz</div>
+                <div class="from-email">sarah.a@gmail.com</div>
+              </div>
+              <div class="from-time">Today, 9:42 AM</div>
+            </div>
+            <div class="email-subject">Order #82341 never arrived – need urgent help</div>
+            <div class="email-to">To: support@yourstore.com</div>
+          </div>
+
+          <div class="email-body">
+            <p>Hi Support Team,</p>
+            <p>I placed <span class="highlight-order">order #82341</span> on November 12th, and I still haven't received it. The tracking page shows "In Transit" since November 14th with absolutely no updates.</p>
+            <p>I paid <span class="highlight-money">$89.99</span> for this order and <span class="highlight-urgent">Christmas is coming up</span> — this was a gift for my daughter. I'm really disappointed with the experience so far.</p>
+            <p>Can you please either:<br>
+              &nbsp;&nbsp;1. Locate my package and provide an updated ETA, or<br>
+              &nbsp;&nbsp;2. Issue a full refund so I can reorder elsewhere.
+            </p>
+            <p>I've been a loyal customer for 3 years and this is my first bad experience. <span class="highlight-urgent">Please resolve this ASAP.</span></p>
+            <p>Thank you,<br><strong>Sarah Abramowitz</strong></p>
+          </div>
+
+          <div class="entity-strip">
+            <div style="font-size:11px;color:var(--text3);width:100%;margin-bottom:4px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">AI extracted entities</div>
+            <div class="entity-chip"><span class="etype">ORDER</span> #82341</div>
+            <div class="entity-chip"><span class="etype">AMOUNT</span> $89.99</div>
+            <div class="entity-chip"><span class="etype">DATE</span> Nov 12</div>
+            <div class="entity-chip" style="background:var(--red-bg);border-color:var(--red-border);color:var(--red)">🚨 Refund risk</div>
+            <div class="entity-chip" style="background:var(--purple-bg);border-color:var(--purple-border);color:var(--accent)">⭐ Loyal 3yr</div>
+            <div class="entity-chip" style="background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)">⏰ Time sensitive</div>
+          </div>
+        </div>
+
+        <!-- AI panel -->
+        <div class="ai-panel">
+          <div class="ai-panel-header">
+            <div class="ai-panel-title">
+              <span>✦</span> AI Analysis
+            </div>
+            <div class="ai-live"><span class="live-dot"></span> Live analysis</div>
+          </div>
+
+          <div class="ai-section">
+            <div class="ai-section-label">Category</div>
+            <div>
+              <span class="category-tag-big tag order">Order issue</span>
+              <span class="category-tag-big tag shipping">Shipping</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-label">Confidence</span>
+              <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:96%;background:var(--green)"></div></div>
+              <span class="conf-value c-green">96%</span>
+            </div>
+          </div>
+
+          <div class="ai-section">
+            <div class="ai-section-label">Sentiment</div>
+            <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:4px">Frustrated</div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width:72%;background:linear-gradient(90deg,var(--amber),var(--red))"></div></div>
+            <div class="sentiment-scale">
+              <span class="sent-label">Calm</span>
+              <span class="sent-label">Angry</span>
+            </div>
+          </div>
+
+          <div class="ai-section">
+            <div class="ai-section-label">Urgency score</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:22px;font-weight:700;color:var(--red)">8.4</span>
+              <span style="font-size:12px;color:var(--text3)">/10</span>
+            </div>
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width:84%;background:var(--red)"></div></div>
+          </div>
+
+          <div class="ai-section">
+            <div class="ai-section-label">Urgency signals</div>
+            <div class="signal-item">
+              <span class="signal-icon" style="color:var(--red)">●</span>
+              <span class="signal-text">Time-sensitive — holiday gift deadline</span>
+            </div>
+            <div class="signal-item">
+              <span class="signal-icon" style="color:var(--red)">●</span>
+              <span class="signal-text">Refund threat explicitly mentioned</span>
+            </div>
+            <div class="signal-item">
+              <span class="signal-icon" style="color:var(--amber)">●</span>
+              <span class="signal-text">3-year loyal customer — churn risk</span>
+            </div>
+            <div class="signal-item">
+              <span class="signal-icon" style="color:var(--amber)">●</span>
+              <span class="signal-text">Package stalled 8+ days in transit</span>
+            </div>
+          </div>
+
+          <div class="ai-section">
+            <div class="ai-section-label">Suggested actions</div>
+            <div class="suggest-action" onclick="showScreen(2)">
+              <span class="sa-icon">✏️</span> View AI-generated draft reply
+            </div>
+            <div class="suggest-action">
+              <span class="sa-icon">📦</span> Look up order #82341
+            </div>
+            <div class="suggest-action">
+              <span class="sa-icon">💰</span> Initiate refund process
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 3: AI DRAFT ══ -->
+    <div class="screen" id="screen-2">
+      <div class="draft-header">
+        <button class="back-btn" onclick="showScreen(1)">← Email detail</button>
+        <span style="font-size:15px;font-weight:600">AI-Generated Draft Reply</span>
+        <div class="draft-badge">
+          <span>✦</span> Generated in 1.2s
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <span class="tag order">Order issue</span>
+          <span class="pri-badge pri-high">HIGH</span>
+        </div>
+      </div>
+
+      <div class="draft-body">
+        <div class="draft-left">
+          <div class="draft-compose">
+            <div class="compose-row">
+              <label>To</label>
+              <span class="cr-value">sarah.a@gmail.com</span>
+              <span class="cr-tag">Sarah Abramowitz</span>
+            </div>
+            <div class="compose-row">
+              <label>From</label>
+              <span class="cr-value">support@yourstore.com</span>
+            </div>
+            <div class="compose-subject">
+              <div class="cr-value" style="font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Subject</div>
+              <div class="subject-text">Re: Order #82341 never arrived – need urgent help</div>
+            </div>
+
+            <div class="compose-body">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;padding:8px 12px;background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:6px">
+                <span style="font-size:12px;color:var(--accent)">✦ AI draft — click any section to edit</span>
+              </div>
+              <p>Hi Sarah,</p>
+              <div class="ai-line">
+                <p>Thank you for reaching out, and I sincerely apologise for the delay with your order — I completely understand how frustrating this must be, especially when it's a gift for your daughter over the holidays.</p>
+              </div>
+              <div class="ai-line">
+                <p>I've located order <strong>#82341</strong> in our system. The package is currently held at a regional sorting facility due to a carrier delay. I've escalated this directly with our shipping partner and they've committed to a delivery update within 24 hours.</p>
+              </div>
+              <div class="ai-line">
+                <p>Here's what I've done for you right now:<br>
+                &nbsp;&nbsp;• Escalated your shipment to priority status<br>
+                &nbsp;&nbsp;• Applied a <strong>15% courtesy discount</strong> to your account for this inconvenience<br>
+                &nbsp;&nbsp;• If your package doesn't arrive by <strong>December 22nd</strong>, a full refund of <strong>$89.99</strong> will be automatically issued</p>
+              </div>
+              <p>You are a valued 3-year customer and I want to make this right. I'll personally follow up tomorrow with a tracking update.</p>
+              <p>Warm regards,<br><strong>Alex — Customer Support</strong><br>YourStore Support Team</p>
+            </div>
+          </div>
+
+          <div class="draft-toolbar">
+            <button class="btn-primary" onclick="showScreen(3)">Approve &amp; Send ✓</button>
+            <button class="btn-ghost">Edit draft</button>
+            <button class="btn-ghost">Regenerate</button>
+            <button class="btn-danger" style="margin-left:auto">Discard</button>
+          </div>
+        </div>
+
+        <!-- draft right panel -->
+        <div class="draft-right">
+          <div class="draft-meta" style="padding:16px 18px;border-bottom:1px solid var(--border)">
+            <div class="dm-label">Draft info</div>
+            <div class="dm-item"><span class="dm-key">Generated in</span><span class="dm-val c-green">1.2s</span></div>
+            <div class="dm-item"><span class="dm-key">Confidence</span><span class="dm-val">94%</span></div>
+            <div class="dm-item"><span class="dm-key">Reading level</span><span class="dm-val">Friendly</span></div>
+            <div class="dm-item"><span class="dm-key">Length</span><span class="dm-val">~180 words</span></div>
+          </div>
+
+          <div class="draft-meta">
+            <div class="dm-label">Tone</div>
+            <div class="tone-chips">
+              <div class="tone-chip active">Empathetic</div>
+              <div class="tone-chip">Formal</div>
+              <div class="tone-chip">Concise</div>
+              <div class="tone-chip">Friendly</div>
+            </div>
+          </div>
+
+          <div class="draft-meta">
+            <div class="dm-label">AI reasoning</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.6">
+              <div class="signal-item" style="margin-bottom:8px">
+                <span class="signal-icon" style="color:var(--green)">✓</span>
+                <span class="signal-text">Acknowledged frustration upfront</span>
+              </div>
+              <div class="signal-item" style="margin-bottom:8px">
+                <span class="signal-icon" style="color:var(--green)">✓</span>
+                <span class="signal-text">Referenced order # and holiday context</span>
+              </div>
+              <div class="signal-item" style="margin-bottom:8px">
+                <span class="signal-icon" style="color:var(--green)">✓</span>
+                <span class="signal-text">Proactive refund guarantee to reduce churn</span>
+              </div>
+              <div class="signal-item" style="margin-bottom:8px">
+                <span class="signal-icon" style="color:var(--green)">✓</span>
+                <span class="signal-text">Loyalty acknowledged (3yr customer)</span>
+              </div>
+              <div class="signal-item">
+                <span class="signal-icon" style="color:var(--green)">✓</span>
+                <span class="signal-text">Clear next steps and timeline</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="draft-meta">
+            <div class="dm-label">Based on</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.7">
+              Knowledge base articles, 847 similar past resolutions, company tone guidelines, and customer history.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 4: APPROVAL QUEUE ══ -->
+    <div class="screen" id="screen-3">
+      <div class="approval-header-row">
+        <span style="font-size:18px;font-weight:600">Approval Queue</span>
+        <span class="inbox-count" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)">6 drafts waiting</span>
+        <span style="font-size:13px;color:var(--text3);margin-left:auto">AI drafted all replies · review &amp; approve in one click</span>
+      </div>
+
+      <div class="approval-layout">
+
+        <!-- card 1 – highlighted -->
+        <div class="queue-card" style="border-color:var(--purple-border)">
+          <div class="queue-card-head">
+            <div class="avatar" style="background:#7c6fef;width:34px;height:34px;font-size:11px">SA</div>
+            <div style="flex:1">
+              <div class="qc-sender">Sarah Abramowitz <span class="pri-badge pri-high" style="margin-left:6px;font-size:10px">HIGH</span></div>
+              <div class="qc-subject">Order #82341 never arrived – need urgent help</div>
+            </div>
+            <div class="ai-generated-pill"><span>✦</span> AI drafted · 96% confidence</div>
+            <span class="tag order" style="margin-left:8px">Order issue</span>
+          </div>
+          <div class="queue-card-body">
+            <div class="draft-preview">
+              <strong>Hi Sarah,</strong> Thank you for reaching out, and I sincerely apologise for the delay. I've located order #82341 — the package is held at a regional sorting facility due to a carrier delay. I've escalated this to priority status and <strong>applied a 15% courtesy discount</strong>. If not delivered by Dec 22nd, a full refund of $89.99 will be issued automatically…
+            </div>
+          </div>
+          <div class="queue-card-footer">
+            <button class="approve-btn">✓ Approve &amp; Send</button>
+            <button class="edit-btn" onclick="showScreen(2)">Edit draft</button>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)">
+              <span>Generated in 1.2s</span>
+            </div>
+            <button class="skip-btn">Skip</button>
+          </div>
+        </div>
+
+        <!-- card 2 -->
+        <div class="queue-card">
+          <div class="queue-card-head">
+            <div class="avatar" style="background:#3ecf8e;width:34px;height:34px;font-size:11px">RJ</div>
+            <div style="flex:1">
+              <div class="qc-sender">Ravi Joshi <span class="pri-badge pri-high" style="margin-left:6px;font-size:10px">HIGH</span></div>
+              <div class="qc-subject">Can I get a refund for my last purchase?</div>
+            </div>
+            <div class="ai-generated-pill"><span>✦</span> AI drafted · 91% confidence</div>
+            <span class="tag refund" style="margin-left:8px">Refund request</span>
+          </div>
+          <div class="queue-card-body">
+            <div class="draft-preview">
+              <strong>Hi Ravi,</strong> I've reviewed your account and can confirm your refund for order #77821 is approved. You'll receive <strong>$54.99 back</strong> to your original payment method within 3–5 business days. I've also added a 10% voucher for your next purchase as a thank-you for your patience…
+            </div>
+          </div>
+          <div class="queue-card-footer">
+            <button class="approve-btn">✓ Approve &amp; Send</button>
+            <button class="edit-btn">Edit draft</button>
+            <div style="margin-left:auto;font-size:12px;color:var(--text3)">Generated in 0.9s</div>
+            <button class="skip-btn">Skip</button>
+          </div>
+        </div>
+
+        <!-- card 3 -->
+        <div class="queue-card">
+          <div class="queue-card-head">
+            <div class="avatar" style="background:#ef5b5b;width:34px;height:34px;font-size:11px">TK</div>
+            <div style="flex:1">
+              <div class="qc-sender">Tom Kwan <span class="pri-badge pri-high" style="margin-left:6px;font-size:10px">HIGH</span></div>
+              <div class="qc-subject">Package shows delivered but I never received it</div>
+            </div>
+            <div class="ai-generated-pill"><span>✦</span> AI drafted · 88% confidence</div>
+            <span class="tag shipping" style="margin-left:8px">Shipping issue</span>
+          </div>
+          <div class="queue-card-body">
+            <div class="draft-preview">
+              <strong>Hi Tom,</strong> I'm sorry to hear about this — a "delivered" status without receipt is very stressful. I've filed a carrier investigation on your behalf (ref: INV-2024-9312) and <strong>requested GPS proof of delivery</strong>. If unresolved in 48 hours, we'll reship your order at no extra cost…
+            </div>
+          </div>
+          <div class="queue-card-footer">
+            <button class="approve-btn">✓ Approve &amp; Send</button>
+            <button class="edit-btn">Edit draft</button>
+            <div style="margin-left:auto;font-size:12px;color:var(--text3)">Generated in 1.4s</div>
+            <button class="skip-btn">Skip</button>
+          </div>
+        </div>
+
+        <!-- card 4 -->
+        <div class="queue-card">
+          <div class="queue-card-head">
+            <div class="avatar" style="background:#f5a623;width:34px;height:34px;font-size:11px">BH</div>
+            <div style="flex:1">
+              <div class="qc-sender">Ben Harper <span class="pri-badge pri-high" style="margin-left:6px;font-size:10px">HIGH</span></div>
+              <div class="qc-subject">Charged twice for same order</div>
+            </div>
+            <div class="ai-generated-pill"><span>✦</span> AI drafted · 93% confidence</div>
+            <span class="tag refund" style="margin-left:8px">Refund request</span>
+          </div>
+          <div class="queue-card-body">
+            <div class="draft-preview">
+              <strong>Hi Ben,</strong> I can see the duplicate charge on your account and I sincerely apologise — this was a payment gateway error. The extra <strong>$72.50 will be refunded within 24 hours</strong>. I've also flagged this to our payments team and submitted a formal incident report…
+            </div>
+          </div>
+          <div class="queue-card-footer">
+            <button class="approve-btn">✓ Approve &amp; Send</button>
+            <button class="edit-btn">Edit draft</button>
+            <div style="margin-left:auto;font-size:12px;color:var(--text3)">Generated in 0.8s</div>
+            <button class="skip-btn">Skip</button>
+          </div>
+        </div>
+
+        <div style="padding:16px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border);display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">✦</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:2px">Approve all 6 with one click</div>
+            <div style="font-size:12px;color:var(--text3)">AI confidence above 88% on all drafts — safe to batch approve</div>
+          </div>
+          <button class="btn-primary" style="margin-left:auto">Approve all 6 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 5: ANALYTICS ══ -->
+    <div class="screen" id="screen-4">
+      <div class="analytics-header">
+        <span class="analytics-title">Analytics &amp; ROI</span>
+        <span class="analytics-sub">Last 30 days · Updated live</span>
+      </div>
+
+      <div class="analytics-layout">
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="ac-label">Emails processed</div>
+            <div class="ac-value c-purple">3,847</div>
+            <div class="ac-delta up">↑ 24% vs last month</div>
+          </div>
+          <div class="analytics-card">
+            <div class="ac-label">Automation rate</div>
+            <div class="ac-value c-green">78%</div>
+            <div class="ac-delta up">↑ 31% improvement</div>
+          </div>
+          <div class="analytics-card">
+            <div class="ac-label">Avg response time</div>
+            <div class="ac-value c-blue">42s</div>
+            <div class="ac-delta up">↓ from 11 min manual</div>
+          </div>
+          <div class="analytics-card">
+            <div class="ac-label">CSAT score</div>
+            <div class="ac-value c-amber">4.8/5</div>
+            <div class="ac-delta up">↑ from 3.9/5</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <!-- bar chart -->
+          <div class="chart-card">
+            <div class="chart-title">Daily email volume — manual vs AI-handled</div>
+            <div class="chart-sub">Blue = AI auto-handled · Gray = needed human review</div>
+            <div class="bar-chart">
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:72px;background:var(--accent)"></div>
+                  <div class="bar" style="height:22px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Mon</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:85px;background:var(--accent)"></div>
+                  <div class="bar" style="height:18px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Tue</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:60px;background:var(--accent)"></div>
+                  <div class="bar" style="height:28px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Wed</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:78px;background:var(--accent)"></div>
+                  <div class="bar" style="height:20px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Thu</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:90px;background:var(--accent)"></div>
+                  <div class="bar" style="height:14px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Fri</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:50px;background:var(--accent)"></div>
+                  <div class="bar" style="height:12px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Sat</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrap">
+                  <div class="bar" style="height:40px;background:var(--accent)"></div>
+                  <div class="bar" style="height:10px;background:var(--surface3)"></div>
+                </div>
+                <div class="bar-lbl">Sun</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- donut -->
+          <div class="chart-card">
+            <div class="chart-title">Category breakdown</div>
+            <div class="donut-wrap">
+              <svg class="donut" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface3)" stroke-width="12"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="var(--red)" stroke-width="12"
+                  stroke-dasharray="56.5 132.5" stroke-dashoffset="0" transform="rotate(-90 40 40)"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="var(--amber)" stroke-width="12"
+                  stroke-dasharray="47 141" stroke-dashoffset="-56.5" transform="rotate(-90 40 40)"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="var(--blue)" stroke-width="12"
+                  stroke-dasharray="38 151" stroke-dashoffset="-103.5" transform="rotate(-90 40 40)"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="var(--green)" stroke-width="12"
+                  stroke-dasharray="47 141" stroke-dashoffset="-141.5" transform="rotate(-90 40 40)"/>
+              </svg>
+              <div class="donut-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div><div class="legend-text">Refund requests</div><div class="legend-pct c-red">30%</div></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div><div class="legend-text">Order issues</div><div class="legend-pct c-amber">25%</div></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><div class="legend-text">Shipping &amp; delivery</div><div class="legend-pct c-blue">20%</div></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><div class="legend-text">General inquiry</div><div class="legend-pct c-green">25%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROI banner -->
+        <div class="roi-banner">
+          <div class="roi-spark">✦</div>
+          <div class="roi-text">
+            <div class="roi-headline">Estimated ROI this month</div>
+            <div class="roi-sub">Based on volume handled, agent hours saved, and CSAT improvement</div>
+          </div>
+          <div class="roi-numbers">
+            <div class="roi-num">
+              <div class="val">$28K</div>
+              <div class="lbl">cost saved</div>
+            </div>
+            <div class="roi-num">
+              <div class="val">940h</div>
+              <div class="lbl">agent hours freed</div>
+            </div>
+            <div class="roi-num">
+              <div class="val">3,000+</div>
+              <div class="lbl">replies automated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.main -->
+</div><!-- /.app -->
+
+<script>
+  const labels = [
+    'Inbox · Step 1 of 5',
+    'Email Detail · Step 2 of 5',
+    'AI Draft · Step 3 of 5',
+    'Approval Queue · Step 4 of 5',
+    'Analytics · Step 5 of 5',
+  ];
+  const navItems = [
+    ['📥','Inbox'],['📥','Inbox'],['✏️','Drafts'],['✅','AI Queue'],['📊','Analytics']
+  ];
+
+  function showScreen(n) {
+    document.querySelectorAll('.screen').forEach((s,i) => s.classList.toggle('active', i === n));
+    document.querySelectorAll('.stab').forEach((t,i) => t.classList.toggle('active', i === n));
+    document.getElementById('step-label').textContent = labels[n];
+
+    // update sidebar active
+    document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
+    const idx = [0,0,1,2,7][n];
+    const allNav = document.querySelectorAll('.nav-item');
+    if(allNav[idx]) allNav[idx].classList.add('active');
+  }
+</script>
+</body>
+</html>
